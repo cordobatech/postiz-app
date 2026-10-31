@@ -1,14 +1,14 @@
 services:
   postiz:
-    image: ghcr.io/gitroomhq/postiz-app:latest
+    image: postiz-custom:latest
     container_name: postiz
     restart: always
     environment:
       # === Required Settings
-      MAIN_URL: 'http://localhost:4007'
-      FRONTEND_URL: 'http://localhost:4007'
-      NEXT_PUBLIC_BACKEND_URL: 'http://localhost:4007/api'
-      JWT_SECRET: 'random string that is unique to every install - just type random characters here!'
+      MAIN_URL: 'https://social.fast2market.online'
+      FRONTEND_URL: 'https://social.fast2market.online'
+      NEXT_PUBLIC_BACKEND_URL: 'https://social.fast2market.online/api'
+      JWT_SECRET: '38fde2fd6ed965f1c359284c40b14ba7d07e68c791b856aafab4f4a74946405c'
       DATABASE_URL: 'postgresql://postiz-user:postiz-password@postiz-postgres:5432/postiz-db-local'
       REDIS_URL: 'redis://postiz-redis:6379'
       BACKEND_INTERNAL_URL: 'http://localhost:3000'
@@ -169,7 +169,7 @@ services:
     pull_policy: always
     container_name: spotlight
     ports:
-      - 8969:8969/tcp
+      - 127.0.0.1:8969:8969/tcp
     image: ghcr.io/getsentry/spotlight:latest
     networks:
       - postiz-network
@@ -256,7 +256,7 @@ services:
     networks:
       - temporal-network
     ports:
-      - '8080:8080'
+      - '127.0.0.1:8088:8080'
 
 volumes:
   postgres-volume:
