@@ -219,4 +219,8 @@ export class OrganizationService {
       shortlink
     );
   }
+
+  createOrgForUser(userId: string, name: string) {
+    return this._organizationRepository.createOrgForUser(userId, name);
+  }
 }

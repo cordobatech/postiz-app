@@ -300,6 +300,35 @@ export class UsersController {
       }));
   }
 
+  @Post('/create-org')
+  async createOrg(
+    @GetUserFromRequest() user: User,
+    @Body('name') name: string,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    if (!name || !name.trim()) {
+      throw new HttpException('Name is required', 400);
+    }
+    const newOrg = await this._orgService.createOrgForUser(user.id, name.trim());
+    response.cookie('showorg', newOrg.id, {
+      domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
+      ...(!process.env.NOT_SECURED
+        ? {
+            secure: true,
+            httpOnly: true,
+            sameSite: 'none',
+          }
+        : {}),
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+    });
+
+    if (process.env.NOT_SECURED) {
+      response.header('showorg', newOrg.id);
+    }
+
+    return newOrg;
+  }
+
   @Post('/change-org')
   changeOrg(
     @Body('id') id: string,
