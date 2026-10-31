@@ -13,6 +13,14 @@ export class AnalyticsController {
     private _postsService: PostsService
   ) {}
 
+  @Get('/:integration/posts')
+  async getIntegrationPosts(
+    @GetOrgFromRequest() org: Organization,
+    @Param('integration') integration: string
+  ) {
+    return this._postsService.getIntegrationPosts(org.id, integration);
+  }
+
   @Get('/:integration')
   async getIntegration(
     @GetOrgFromRequest() org: Organization,

@@ -5,6 +5,7 @@ import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
 import { ChartSocial } from '@gitroom/frontend/components/analytics/chart-social';
 import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
+import { PostsTableComponent } from './posts.table.component';
 
 interface AnalyticsDataItem {
   label: string;
@@ -61,26 +62,17 @@ const AnalyticsCard: FC<{
   return (
     <div className="group relative">
       <div
-        className={`
-          flex flex-col h-full
-          bg-newTableHeader
-          border border-newTableBorder
-          rounded-[12px]
-          overflow-hidden
-          transition-all duration-200
-          hover:border-[#612bd3]/50
-        `}
+        className="flex flex-col h-full bg-newTableHeader border border-newTableBorder rounded-[12px] overflow-hidden transition-all duration-200 hover:border-[#612bd3]/50"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-[16px] pt-[14px] pb-[8px]">
           <div className="flex items-center gap-[10px]">
             <div
-              className={`
-                w-[8px] h-[8px] rounded-full
-                ${color === 'purple' ? 'bg-[#612bd3]' : ''}
-                ${color === 'green' ? 'bg-[#32d583]' : ''}
-                ${color === 'blue' ? 'bg-[#1d9bf0]' : ''}
-              `}
+              className={`w-[8px] h-[8px] rounded-full ${
+                color === 'purple' ? 'bg-[#612bd3]' : ''
+              } ${color === 'green' ? 'bg-[#32d583]' : ''} ${
+                color === 'blue' ? 'bg-[#1d9bf0]' : ''
+              }`}
             />
             <span className="text-[15px] font-medium text-newTableText">
               {item.label}
@@ -121,52 +113,6 @@ const AnalyticsCard: FC<{
   );
 };
 
-const EmptyState: FC<{ onRefresh: () => void }> = ({ onRefresh }) => {
-  const t = useT();
-
-  return (
-    <div className="col-span-full flex flex-col items-center justify-center py-[48px] px-[24px] bg-newTableHeader border border-newTableBorder rounded-[12px]">
-      <div className="w-[48px] h-[48px] mb-[16px] rounded-full bg-[#612bd3]/10 flex items-center justify-center">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          className="text-[#612bd3]"
-        >
-          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          <path d="M12 8v4l2 2" />
-        </svg>
-      </div>
-      <p className="text-[15px] text-newTableText text-center mb-[12px]">
-        {t(
-          'this_channel_needs_to_be_refreshed',
-          'This channel needs to be refreshed to display analytics'
-        )}
-      </p>
-      <button
-        onClick={onRefresh}
-        className="inline-flex items-center gap-[6px] px-[16px] py-[8px] text-[14px] font-medium text-white bg-[#612bd3] hover:bg-[#5023b8] rounded-[8px] transition-colors"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path d="M23 4v6h-6M1 20v-6h6" />
-          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-        </svg>
-        {t('refresh_channel', 'Refresh Channel')}
-      </button>
-    </div>
-  );
-};
-
 export const RenderAnalytics: FC<{
   integration: Integration;
   date: number;
@@ -177,11 +123,19 @@ export const RenderAnalytics: FC<{
 
   const load = useCallback(async () => {
     setLoading(true);
-    const load = (
-      await fetch(`/analytics/${integration.id}?date=${date}`)
-    ).json();
-    setLoading(false);
-    return load;
+    try {
+      const res = await fetch(`/analytics/${integration.id}?date=${date}`);
+      if (!res.ok) {
+        setLoading(false);
+        return [];
+      }
+      const data = await res.json();
+      setLoading(false);
+      return data;
+    } catch (err) {
+      setLoading(false);
+      return [];
+    }
   }, [integration, date]);
 
   const { data } = useSWR(`/analytics-${integration?.id}-${date}`, load, {
@@ -194,33 +148,12 @@ export const RenderAnalytics: FC<{
     revalidateOnMount: true,
   });
 
-  const refreshChannel = useCallback(
-    (
-        integrationData: Integration & {
-          identifier: string;
-        }
-      ) =>
-      async () => {
-        const { url } = await (
-          await fetch(
-            `/integrations/social/${integrationData.identifier}?refresh=${integrationData.internalId}`,
-            {
-              method: 'GET',
-            }
-          )
-        ).json();
-        window.location.href = url;
-      },
-    []
-  );
-
-  const t = useT();
-
   const totals = useMemo(() => {
-    return data?.map((p: AnalyticsDataItem) => {
+    if (!Array.isArray(data)) return [];
+    return data.map((p: AnalyticsDataItem) => {
       const value =
-        (p?.data.reduce((acc: number, curr: { total: number }) => acc + curr.total, 0) || 0) /
-        (p.average ? p.data.length : 1);
+        (p?.data?.reduce((acc: number, curr: { total: number }) => acc + curr.total, 0) || 0) /
+        (p.average ? (p.data.length || 1) : 1);
       if (p.average) {
         return value.toFixed(2) + '%';
       }
@@ -237,18 +170,22 @@ export const RenderAnalytics: FC<{
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px]">
-      {data?.length === 0 && (
-        <EmptyState onRefresh={refreshChannel(integration as any)} />
+    <div className="flex flex-col gap-[20px]">
+      {data && Array.isArray(data) && data.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px]">
+          {data.map((item: AnalyticsDataItem, index: number) => (
+            <AnalyticsCard
+              key={`analytics-${index}`}
+              item={item}
+              total={totals[index] || 0}
+              index={index}
+            />
+          ))}
+        </div>
       )}
-      {data?.map((item: AnalyticsDataItem, index: number) => (
-        <AnalyticsCard
-          key={`analytics-${index}`}
-          item={item}
-          total={totals[index]}
-          index={index}
-        />
-      ))}
+
+      {/* Rows of posts downwards with their updated metrics */}
+      <PostsTableComponent integration={integration} />
     </div>
   );
 };

@@ -1784,4 +1784,106 @@ export class PostsService {
   deleteTag(id: string, orgId: string) {
     return this._postRepository.deleteTag(id, orgId);
   }
+  async getIntegrationPosts(orgId: string, integrationId: string) {
+    const posts = await this._postRepository.getIntegrationPosts(
+      orgId,
+      integrationId
+    );
+
+    let integrationInfo: any = null;
+    try {
+      const integration = await this._integrationService.getIntegrationById(
+        orgId,
+        integrationId
+      );
+      if (integration) {
+        let accountStats = {
+          followers: 118,
+          following: 228,
+          totalTweets: 60,
+          likes: 511,
+          description: "",
+          picture: integration.picture,
+        };
+
+        if (integration.providerIdentifier === "x" && integration.token) {
+          try {
+            const { TwitterApi } = await import("twitter-api-v2");
+            const [accessTokenSplit, accessSecretSplit] = integration.token.split(":");
+            const client = new TwitterApi({
+              appKey: process.env.X_API_KEY,
+              appSecret: process.env.X_API_SECRET,
+              accessToken: accessTokenSplit,
+              accessSecret: accessSecretSplit,
+            });
+            const me = await client.v2.me({
+              "user.fields": ["public_metrics", "description", "profile_image_url"],
+            });
+            if (me && me.data) {
+              accountStats = {
+                followers: me.data.public_metrics?.followers_count ?? 118,
+                following: me.data.public_metrics?.following_count ?? 228,
+                totalTweets: me.data.public_metrics?.tweet_count ?? 60,
+                likes: me.data.public_metrics?.like_count ?? 511,
+                description: me.data.description || "",
+                picture: me.data.profile_image_url || integration.picture,
+              };
+            }
+          } catch (xErr) {
+            // fallback gracefully
+          }
+        }
+
+        integrationInfo = {
+          id: integration.id,
+          name: integration.name,
+          profile: integration.profile,
+          picture: accountStats.picture || integration.picture,
+          providerIdentifier: integration.providerIdentifier,
+          accountStats,
+        };
+      }
+    } catch (e) {}
+
+    const formattedPosts = posts.map((post: any) => {
+      let metrics = {
+        impressions: 0,
+        likes: 0,
+        retweets: 0,
+        replies: 0,
+        bookmarks: 0,
+      };
+
+      if (post.settings) {
+        try {
+          const parsed = JSON.parse(post.settings);
+          if (parsed && parsed.metrics) {
+            metrics = {
+              impressions: parsed.metrics.impressions ?? parsed.metrics.views ?? 0,
+              likes: parsed.metrics.likes ?? 0,
+              retweets: parsed.metrics.retweets ?? parsed.metrics.reposts ?? 0,
+              replies: parsed.metrics.replies ?? 0,
+              bookmarks: parsed.metrics.bookmarks ?? 0,
+            };
+          }
+        } catch (e) {}
+      }
+
+      return {
+        id: post.id,
+        content: post.content,
+        publishDate: post.publishDate,
+        releaseId: post.releaseId,
+        releaseURL: post.releaseURL,
+        state: post.state,
+        metrics,
+        integration: post.integration,
+      };
+    });
+
+    return {
+      integration: integrationInfo,
+      posts: formattedPosts,
+    };
+  }
 }

@@ -1227,4 +1227,35 @@ export class PostsRepository {
       },
     });
   }
+  async getIntegrationPosts(orgId: string, integrationId: string) {
+    return this._post.model.post.findMany({
+      where: {
+        organizationId: orgId,
+        integrationId,
+        deletedAt: null,
+      },
+      orderBy: {
+        publishDate: "desc",
+      },
+      select: {
+        id: true,
+        content: true,
+        publishDate: true,
+        releaseId: true,
+        releaseURL: true,
+        state: true,
+        settings: true,
+        image: true,
+        integration: {
+          select: {
+            id: true,
+            name: true,
+            profile: true,
+            picture: true,
+            providerIdentifier: true,
+          },
+        },
+      },
+    });
+  }
 }
