@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState, Component, ReactNode, ErrorInfo } from 'react';
 import { Integration } from '@prisma/client';
 import useSWR from 'swr';
 import { useFetch } from '@gitroom/helpers/utils/custom.fetch';
@@ -18,10 +18,10 @@ const TrendIndicator: FC<{ value: number; average?: boolean }> = ({
   value,
   average,
 }) => {
-  if (value === 0) return null;
+  if (value === 0 || value === undefined || value === null) return null;
 
-  const isPositive = value > 0;
-  const displayValue = Math.abs(value).toFixed(1);
+  const isPositive = Number(value) > 0;
+  const displayValue = Math.abs(Number(value) || 0).toFixed(1);
 
   return (
     <div
@@ -57,7 +57,7 @@ const AnalyticsCard: FC<{
   const colorVariants = ['purple', 'green', 'blue'] as const;
   const color = colorVariants[index % colorVariants.length];
 
-  const hasDataPoints = item.data.length >= 1;
+  const hasDataPoints = Array.isArray(item?.data) && item.data.length >= 1;
 
   return (
     <div className="group relative">
@@ -75,10 +75,10 @@ const AnalyticsCard: FC<{
               }`}
             />
             <span className="text-[15px] font-medium text-newTableText">
-              {item.label}
+              {item?.label || 'Métrica'}
             </span>
           </div>
-          {item.percentageChange !== undefined && (
+          {item?.percentageChange !== undefined && (
             <TrendIndicator value={item.percentageChange} average={item.average} />
           )}
         </div>
@@ -122,6 +122,7 @@ export const RenderAnalytics: FC<{
   const fetch = useFetch();
 
   const load = useCallback(async () => {
+    if (!integration?.id) return [];
     setLoading(true);
     try {
       const res = await fetch(`/analytics/${integration.id}?date=${date}`);
@@ -131,14 +132,14 @@ export const RenderAnalytics: FC<{
       }
       const data = await res.json();
       setLoading(false);
-      return data;
+      return Array.isArray(data) ? data : [];
     } catch (err) {
       setLoading(false);
       return [];
     }
   }, [integration, date]);
 
-  const { data } = useSWR(`/analytics-${integration?.id}-${date}`, load, {
+  const { data } = useSWR(integration?.id ? `/analytics-${integration.id}-${date}` : null, load, {
     refreshInterval: 0,
     refreshWhenHidden: false,
     revalidateOnFocus: false,
@@ -151,8 +152,9 @@ export const RenderAnalytics: FC<{
   const totals = useMemo(() => {
     if (!Array.isArray(data)) return [];
     return data.map((p: AnalyticsDataItem) => {
+      if (!p || !Array.isArray(p.data)) return '0';
       const value =
-        (p?.data?.reduce((acc: number, curr: { total: number }) => acc + curr.total, 0) || 0) /
+        (p.data.reduce((acc: number, curr: { total: number }) => acc + (Number(curr?.total) || 0), 0) || 0) /
         (p.average ? (p.data.length || 1) : 1);
       if (p.average) {
         return value.toFixed(2) + '%';
@@ -185,7 +187,7 @@ export const RenderAnalytics: FC<{
       )}
 
       {/* Rows of posts downwards with their updated metrics */}
-      <PostsTableComponent integration={integration} />
+      {integration && <PostsTableComponent integration={integration} />}
     </div>
   );
 };

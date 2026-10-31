@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC, useState, useMemo } from 'react';
+import React, { FC, useState, useMemo, Component, ErrorInfo, ReactNode } from 'react';
 import { Integration } from '@prisma/client';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
@@ -9,28 +9,28 @@ import { LoadingComponent } from '@gitroom/frontend/components/layout/loading';
 import { useToaster } from '@gitroom/react/toaster/toaster';
 
 interface PostMetric {
-  impressions: number;
-  likes: number;
-  retweets: number;
-  replies: number;
-  bookmarks: number;
+  impressions?: number;
+  likes?: number;
+  retweets?: number;
+  replies?: number;
+  bookmarks?: number;
 }
 
 interface IntegrationPost {
   id: string;
-  content: string;
-  publishDate: string;
-  releaseId: string | null;
-  releaseURL: string | null;
-  state: string;
-  metrics: PostMetric;
+  content?: string;
+  publishDate?: string;
+  releaseId?: string | null;
+  releaseURL?: string | null;
+  state?: string;
+  metrics?: PostMetric;
 }
 
 interface IntegrationAccountStats {
-  followers: number;
-  following: number;
-  totalTweets: number;
-  likes: number;
+  followers?: number;
+  following?: number;
+  totalTweets?: number;
+  likes?: number;
   description?: string;
   picture?: string;
 }
@@ -38,21 +38,60 @@ interface IntegrationAccountStats {
 interface PostsApiResponse {
   integration?: {
     id: string;
-    name: string;
-    profile: string;
-    picture: string;
-    providerIdentifier: string;
+    name?: string;
+    profile?: string;
+    picture?: string;
+    providerIdentifier?: string;
     accountStats?: IntegrationAccountStats;
   };
-  posts: IntegrationPost[];
+  posts?: IntegrationPost[];
 }
 
-export const PostsTableComponent: FC<{
+// React Error Boundary to catch any render errors and prevent Next.js client crash
+class SafeErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: '' };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error: error?.message || 'Error al renderizar' };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('PostsTableComponent render error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="bg-newTableHeader border border-newTableBorder rounded-[12px] p-[24px] text-center my-[16px]">
+          <p className="text-[14px] text-newTableText font-medium mb-[8px]">
+            Se produjo una advertencia al cargar el historial de publicaciones.
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: '' })}
+            className="px-[12px] py-[6px] text-[13px] bg-[#612bd3] text-white rounded-[6px]"
+          >
+            Reintentar
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const PostsTableContent: FC<{
   integration: Integration;
 }> = ({ integration }) => {
   const fetch = useFetch();
   const toaster = useToaster();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  if (!integration || !integration.id) {
+    return null;
+  }
 
   const loadPosts = async (): Promise<PostsApiResponse> => {
     try {
@@ -60,7 +99,8 @@ export const PostsTableComponent: FC<{
       if (!res.ok) {
         return { posts: [] };
       }
-      return await res.json();
+      const json = await res.json();
+      return json || { posts: [] };
     } catch (e) {
       return { posts: [] };
     }
@@ -76,37 +116,46 @@ export const PostsTableComponent: FC<{
   );
 
   const posts = useMemo(() => {
-    return data?.posts || [];
+    return Array.isArray(data?.posts) ? data.posts : [];
   }, [data]);
 
   const account = useMemo(() => {
-    return data?.integration?.accountStats || {
-      followers: 118,
-      following: 228,
-      totalTweets: 60,
-      likes: 511,
-      picture: integration.picture,
+    const raw = data?.integration?.accountStats;
+    return {
+      followers: Number(raw?.followers ?? 118),
+      following: Number(raw?.following ?? 228),
+      totalTweets: Number(raw?.totalTweets ?? 60),
+      likes: Number(raw?.likes ?? 511),
+      picture: raw?.picture || integration.picture || '/icons/platforms/x.png',
     };
   }, [data, integration]);
 
   const totalImpressions = useMemo(() => {
-    return posts.reduce((acc, curr) => acc + (curr.metrics?.impressions || 0), 0);
+    return posts.reduce((acc, curr) => acc + Number(curr?.metrics?.impressions || 0), 0);
   }, [posts]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await mutate();
-    setIsRefreshing(false);
-    toaster.show('Publicaciones y métricas actualizadas', 'success');
+    try {
+      await mutate();
+      toaster.show('Publicaciones y métricas actualizadas', 'success');
+    } catch (err) {
+      toaster.show('Error al refrescar', 'warning');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const profileUrl = useMemo(() => {
-    const username = data?.integration?.profile || integration.profile || 'EduardoPeiro';
-    if (integration.providerIdentifier === 'x') {
+    const username = data?.integration?.profile || integration?.profile || 'EduardoPeiro';
+    if (integration?.providerIdentifier === 'x') {
       return `https://x.com/${username}`;
     }
     return '#';
   }, [data, integration]);
+
+  const channelName = integration?.name || 'Canal';
+  const username = data?.integration?.profile || integration?.profile || 'EduardoPeiro';
 
   return (
     <div className="flex flex-col gap-[20px] w-full text-newTableText select-text">
@@ -115,8 +164,8 @@ export const PostsTableComponent: FC<{
         <div className="flex items-center gap-[16px]">
           <div className="relative shrink-0">
             <img
-              src={account.picture || integration.picture || '/icons/platforms/x.png'}
-              alt={integration.name}
+              src={account.picture || '/icons/platforms/x.png'}
+              alt={channelName}
               className="w-[56px] h-[56px] rounded-full object-cover border-2 border-fifth shadow"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/icons/platforms/x.png';
@@ -131,7 +180,7 @@ export const PostsTableComponent: FC<{
           <div className="flex flex-col">
             <div className="flex items-center gap-[10px] flex-wrap">
               <h3 className="text-[18px] font-semibold text-newTableText leading-tight">
-                {integration.name}
+                {channelName}
               </h3>
               <span className="inline-flex items-center gap-[5px] text-[12px] font-medium text-[#10b981] bg-[#10b981]/15 px-[8px] py-[2px] rounded-full border border-[#10b981]/30">
                 <span className="w-[6px] h-[6px] rounded-full bg-[#10b981] animate-pulse" />
@@ -139,7 +188,7 @@ export const PostsTableComponent: FC<{
               </span>
             </div>
             <div className="text-[13px] text-[#94a3b8] font-normal mt-[2px]">
-              @{data?.integration?.profile || integration.profile || 'EduardoPeiro'} • X (Twitter)
+              @{username} • X (Twitter)
             </div>
           </div>
         </div>
@@ -148,15 +197,15 @@ export const PostsTableComponent: FC<{
         <div className="flex items-center gap-[12px] flex-wrap">
           <div className="flex items-center gap-[8px] bg-newBgColorInner px-[12px] py-[8px] rounded-[10px] border border-newTableBorder text-[13px]">
             <span className="text-[#94a3b8]">Seguidores:</span>
-            <span className="font-bold text-white">{account.followers.toLocaleString()}</span>
+            <span className="font-bold text-white">{Number(account.followers || 0).toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-[8px] bg-newBgColorInner px-[12px] py-[8px] rounded-[10px] border border-newTableBorder text-[13px]">
             <span className="text-[#94a3b8]">Siguiendo:</span>
-            <span className="font-bold text-white">{account.following.toLocaleString()}</span>
+            <span className="font-bold text-white">{Number(account.following || 0).toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-[8px] bg-newBgColorInner px-[12px] py-[8px] rounded-[10px] border border-newTableBorder text-[13px]">
             <span className="text-[#94a3b8]">Posts totales:</span>
-            <span className="font-bold text-white">{account.totalTweets.toLocaleString()}</span>
+            <span className="font-bold text-white">{Number(account.totalTweets || 0).toLocaleString()}</span>
           </div>
 
           <div className="flex items-center gap-[8px] ms-auto md:ms-0">
@@ -210,7 +259,7 @@ export const PostsTableComponent: FC<{
         {totalImpressions > 0 && (
           <div className="text-[13px] text-[#94a3b8] font-normal flex items-center gap-[6px]">
             <span>Impresiones acumuladas en lista:</span>
-            <span className="font-semibold text-white">{totalImpressions.toLocaleString()}</span>
+            <span className="font-semibold text-white">{Number(totalImpressions || 0).toLocaleString()}</span>
           </div>
         )}
       </div>
@@ -241,11 +290,19 @@ export const PostsTableComponent: FC<{
       ) : (
         <div className="flex flex-col gap-[12px]">
           {posts.map((post) => {
-            const dateStr = dayjs(post.publishDate).isValid()
+            const dateStr = post?.publishDate && dayjs(post.publishDate).isValid()
               ? dayjs(post.publishDate).format('D MMM YYYY, HH:mm [hs]')
               : 'Fecha no disponible';
 
-            const cleanContent = (post.content || '').split('\\n').join('\n');
+            const cleanContent = typeof post?.content === 'string'
+              ? post.content.split('\\n').join('\n')
+              : '';
+
+            const impressions = Number(post?.metrics?.impressions || 0);
+            const likes = Number(post?.metrics?.likes || 0);
+            const retweets = Number(post?.metrics?.retweets || 0);
+            const replies = Number(post?.metrics?.replies || 0);
+            const bookmarks = Number(post?.metrics?.bookmarks || 0);
 
             return (
               <div
@@ -269,7 +326,7 @@ export const PostsTableComponent: FC<{
                     </span>
                   </div>
 
-                  {post.releaseURL && (
+                  {post?.releaseURL && (
                     <a
                       href={post.releaseURL}
                       target="_blank"
@@ -302,7 +359,7 @@ export const PostsTableComponent: FC<{
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
-                    <span className="font-bold">{(post.metrics.impressions || 0).toLocaleString()}</span>
+                    <span className="font-bold">{impressions.toLocaleString()}</span>
                     <span className="text-[11px] opacity-80">vistas</span>
                   </div>
 
@@ -314,7 +371,7 @@ export const PostsTableComponent: FC<{
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                     </svg>
-                    <span className="font-bold">{(post.metrics.likes || 0).toLocaleString()}</span>
+                    <span className="font-bold">{likes.toLocaleString()}</span>
                     <span className="text-[11px] opacity-80">likes</span>
                   </div>
 
@@ -329,7 +386,7 @@ export const PostsTableComponent: FC<{
                       <path d="M7 23l-4-4 4-4" />
                       <path d="M21 13v2a4 4 0 0 1-4 4H3" />
                     </svg>
-                    <span className="font-bold">{(post.metrics.retweets || 0).toLocaleString()}</span>
+                    <span className="font-bold">{retweets.toLocaleString()}</span>
                     <span className="text-[11px] opacity-80">reposts</span>
                   </div>
 
@@ -341,7 +398,7 @@ export const PostsTableComponent: FC<{
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
-                    <span className="font-bold">{(post.metrics.replies || 0).toLocaleString()}</span>
+                    <span className="font-bold">{replies.toLocaleString()}</span>
                     <span className="text-[11px] opacity-80">respuestas</span>
                   </div>
 
@@ -353,7 +410,7 @@ export const PostsTableComponent: FC<{
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                     </svg>
-                    <span className="font-bold">{(post.metrics.bookmarks || 0).toLocaleString()}</span>
+                    <span className="font-bold">{bookmarks.toLocaleString()}</span>
                     <span className="text-[11px] opacity-80">guardados</span>
                   </div>
                 </div>
@@ -363,5 +420,15 @@ export const PostsTableComponent: FC<{
         </div>
       )}
     </div>
+  );
+};
+
+export const PostsTableComponent: FC<{
+  integration: Integration;
+}> = (props) => {
+  return (
+    <SafeErrorBoundary>
+      <PostsTableContent {...props} />
+    </SafeErrorBoundary>
   );
 };
