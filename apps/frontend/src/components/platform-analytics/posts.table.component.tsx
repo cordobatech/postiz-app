@@ -133,12 +133,12 @@ export const PostsTableComponent: FC<{
               <h3 className="text-[18px] font-semibold text-newTableText leading-tight">
                 {integration.name}
               </h3>
-              <span className="inline-flex items-center gap-[5px] text-[12px] font-medium text-[#10b981] bg-[#10b981]/10 px-[8px] py-[2px] rounded-full border border-[#10b981]/20">
+              <span className="inline-flex items-center gap-[5px] text-[12px] font-medium text-[#10b981] bg-[#10b981]/15 px-[8px] py-[2px] rounded-full border border-[#10b981]/30">
                 <span className="w-[6px] h-[6px] rounded-full bg-[#10b981] animate-pulse" />
                 Conectado
               </span>
             </div>
-            <div className="text-[13px] text-fifth font-normal mt-[2px]">
+            <div className="text-[13px] text-[#94a3b8] font-normal mt-[2px]">
               @{data?.integration?.profile || integration.profile || 'EduardoPeiro'} • X (Twitter)
             </div>
           </div>
@@ -147,16 +147,16 @@ export const PostsTableComponent: FC<{
         {/* Global Account Stats Pills */}
         <div className="flex items-center gap-[12px] flex-wrap">
           <div className="flex items-center gap-[8px] bg-newBgColorInner px-[12px] py-[8px] rounded-[10px] border border-newTableBorder text-[13px]">
-            <span className="text-fifth">Seguidores:</span>
-            <span className="font-bold text-newTableText">{account.followers.toLocaleString()}</span>
+            <span className="text-[#94a3b8]">Seguidores:</span>
+            <span className="font-bold text-white">{account.followers.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-[8px] bg-newBgColorInner px-[12px] py-[8px] rounded-[10px] border border-newTableBorder text-[13px]">
-            <span className="text-fifth">Siguiendo:</span>
-            <span className="font-bold text-newTableText">{account.following.toLocaleString()}</span>
+            <span className="text-[#94a3b8]">Siguiendo:</span>
+            <span className="font-bold text-white">{account.following.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-[8px] bg-newBgColorInner px-[12px] py-[8px] rounded-[10px] border border-newTableBorder text-[13px]">
-            <span className="text-fifth">Posts totales:</span>
-            <span className="font-bold text-newTableText">{account.totalTweets.toLocaleString()}</span>
+            <span className="text-[#94a3b8]">Posts totales:</span>
+            <span className="font-bold text-white">{account.totalTweets.toLocaleString()}</span>
           </div>
 
           <div className="flex items-center gap-[8px] ms-auto md:ms-0">
@@ -203,14 +203,14 @@ export const PostsTableComponent: FC<{
           <h2 className="text-[18px] font-semibold text-newTableText tracking-tight">
             Historial de Publicaciones y Métricas
           </h2>
-          <span className="bg-newTableHeader text-fifth text-[12px] px-[9px] py-[3px] rounded-full border border-newTableBorder font-medium">
+          <span className="bg-newTableHeader text-[#94a3b8] text-[12px] px-[9px] py-[3px] rounded-full border border-newTableBorder font-medium">
             {posts.length} {posts.length === 1 ? 'publicación' : 'publicaciones'}
           </span>
         </div>
         {totalImpressions > 0 && (
-          <div className="text-[13px] text-fifth font-normal flex items-center gap-[6px]">
+          <div className="text-[13px] text-[#94a3b8] font-normal flex items-center gap-[6px]">
             <span>Impresiones acumuladas en lista:</span>
-            <span className="font-semibold text-newTableText">{totalImpressions.toLocaleString()}</span>
+            <span className="font-semibold text-white">{totalImpressions.toLocaleString()}</span>
           </div>
         )}
       </div>
@@ -234,7 +234,7 @@ export const PostsTableComponent: FC<{
           <p className="text-[15px] font-medium text-newTableText">
             No hay publicaciones cargadas para esta cuenta aún.
           </p>
-          <p className="text-[13px] text-fifth max-w-[400px]">
+          <p className="text-[13px] text-[#94a3b8] max-w-[400px]">
             Las publicaciones creadas en Postiz o sincronizadas de tu canal aparecerán automáticamente en esta tabla.
           </p>
         </div>
@@ -245,6 +245,8 @@ export const PostsTableComponent: FC<{
               ? dayjs(post.publishDate).format('D MMM YYYY, HH:mm [hs]')
               : 'Fecha no disponible';
 
+            const cleanContent = (post.content || '').split('\\n').join('\n');
+
             return (
               <div
                 key={post.id}
@@ -253,7 +255,7 @@ export const PostsTableComponent: FC<{
                 {/* Post Row Header: Date & Status & Direct Link */}
                 <div className="flex items-center justify-between flex-wrap gap-[8px]">
                   <div className="flex items-center gap-[10px]">
-                    <span className="inline-flex items-center gap-[5px] text-[12px] font-medium text-fifth">
+                    <span className="inline-flex items-center gap-[5px] text-[12px] font-medium text-[#94a3b8]">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                         <line x1="16" y1="2" x2="16" y2="6" />
@@ -262,7 +264,7 @@ export const PostsTableComponent: FC<{
                       </svg>
                       {dateStr}
                     </span>
-                    <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#10b981] bg-[#10b981]/10 px-[7px] py-[1.5px] rounded-full border border-[#10b981]/20">
+                    <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#10b981] bg-[#10b981]/15 px-[7px] py-[1.5px] rounded-full border border-[#10b981]/30">
                       Publicado
                     </span>
                   </div>
@@ -286,7 +288,7 @@ export const PostsTableComponent: FC<{
 
                 {/* Post Body: Clean Text with linebreaks */}
                 <div className="text-[14px] leading-relaxed text-newTableText whitespace-pre-wrap select-text font-normal font-sans bg-newBgColorInner p-[14px] rounded-[8px] border border-newTableBorder/60">
-                  {post.content}
+                  {cleanContent}
                 </div>
 
                 {/* Post Metrics Badges Bar */}
