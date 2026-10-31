@@ -80,7 +80,7 @@ class SafeErrorBoundary extends Component<{ children: ReactNode }, { hasError: b
     if (this.state.hasError) {
       return (
         <div className="bg-newTableHeader border border-newTableBorder rounded-[12px] p-[24px] text-center my-[16px]">
-          <p className="text-[14px] text-newTableText font-medium mb-[8px]">
+          <p className="text-[14px] text-gray-900 dark:text-gray-100 font-medium mb-[8px]">
             Se produjo una advertencia al cargar el historial de publicaciones.
           </p>
           <button
@@ -196,9 +196,9 @@ const PostsTableContent: FC<{
   const username = data?.integration?.profile || integration?.profile || 'EduardoPeiro';
 
   return (
-    <div className="flex flex-col gap-[20px] w-full text-newTableText select-text">
+    <div className="flex flex-col gap-[20px] w-full text-gray-900 dark:text-gray-100 select-text">
       {/* Account Info Banner */}
-      <div className="bg-newTableHeader border border-newTableBorder rounded-[12px] p-[20px] flex items-center justify-between gap-[20px] flex-wrap shadow-sm">
+      <div className="bg-white dark:bg-newTableHeader border border-gray-200 dark:border-newTableBorder rounded-[12px] p-[20px] flex items-center justify-between gap-[20px] flex-wrap shadow-sm">
         <div className="flex items-center gap-[16px]">
           <div className="relative">
             <img
@@ -217,33 +217,33 @@ const PostsTableContent: FC<{
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-[10px] flex-wrap">
-              <h3 className="text-[18px] font-semibold text-newTableText leading-tight">
+              <h3 className="text-[18px] font-bold text-gray-900 dark:text-white leading-tight">
                 {channelName}
               </h3>
-              <span className="inline-flex items-center gap-[5px] text-[12px] font-medium text-[#10b981] bg-[#10b981]/15 px-[8px] py-[2px] rounded-full border border-[#10b981]/30">
-                <span className="w-[6px] h-[6px] rounded-full bg-[#10b981] animate-pulse" />
+              <span className="inline-flex items-center gap-[5px] text-[12px] font-semibold text-[#059669] dark:text-[#10b981] bg-[#059669]/10 dark:bg-[#10b981]/15 px-[8px] py-[2px] rounded-full border border-[#059669]/30 dark:border-[#10b981]/30">
+                <span className="w-[6px] h-[6px] rounded-full bg-[#059669] dark:bg-[#10b981] animate-pulse" />
                 Conectado
               </span>
             </div>
-            <div className="text-[13px] text-[#94a3b8] font-normal mt-[2px]">
+            <div className="text-[13px] text-gray-500 dark:text-[#94a3b8] font-normal mt-[2px]">
               @{username} • X (Twitter)
             </div>
           </div>
         </div>
 
-        {/* Global Account Stats Pills: HIGH CONTRAST */}
+        {/* Global Account Stats Pills: DUAL-THEME HIGH CONTRAST */}
         <div className="flex items-center gap-[12px] flex-wrap">
-          <div className="flex items-center gap-[8px] bg-[#1e293b] px-[14px] py-[8px] rounded-[10px] border border-[#475569] text-[13px] shadow-sm">
-            <span className="text-[#cbd5e1] font-semibold">Seguidores:</span>
-            <span className="font-extrabold text-white text-[15px]">{Number(account.followers || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-[8px] bg-gray-50 dark:bg-[#1e293b] px-[14px] py-[8px] rounded-[10px] border border-gray-300 dark:border-[#475569] text-[13px] shadow-sm">
+            <span className="text-gray-600 dark:text-[#cbd5e1] font-semibold">Seguidores:</span>
+            <span className="font-extrabold text-gray-900 dark:text-white text-[15px]">{Number(account.followers || 0).toLocaleString()}</span>
           </div>
-          <div className="flex items-center gap-[8px] bg-[#1e293b] px-[14px] py-[8px] rounded-[10px] border border-[#475569] text-[13px] shadow-sm">
-            <span className="text-[#cbd5e1] font-semibold">Siguiendo:</span>
-            <span className="font-extrabold text-white text-[15px]">{Number(account.following || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-[8px] bg-gray-50 dark:bg-[#1e293b] px-[14px] py-[8px] rounded-[10px] border border-gray-300 dark:border-[#475569] text-[13px] shadow-sm">
+            <span className="text-gray-600 dark:text-[#cbd5e1] font-semibold">Siguiendo:</span>
+            <span className="font-extrabold text-gray-900 dark:text-white text-[15px]">{Number(account.following || 0).toLocaleString()}</span>
           </div>
-          <div className="flex items-center gap-[8px] bg-[#1e293b] px-[14px] py-[8px] rounded-[10px] border border-[#475569] text-[13px] shadow-sm">
-            <span className="text-[#cbd5e1] font-semibold">Posts totales:</span>
-            <span className="font-extrabold text-white text-[15px]">{Number(account.totalTweets || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-[8px] bg-gray-50 dark:bg-[#1e293b] px-[14px] py-[8px] rounded-[10px] border border-gray-300 dark:border-[#475569] text-[13px] shadow-sm">
+            <span className="text-gray-600 dark:text-[#cbd5e1] font-semibold">Posts totales:</span>
+            <span className="font-extrabold text-gray-900 dark:text-white text-[15px]">{Number(account.totalTweets || 0).toLocaleString()}</span>
           </div>
 
           <div className="flex items-center gap-[8px] ms-auto md:ms-0">
@@ -263,7 +263,7 @@ const PostsTableContent: FC<{
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-[6px] px-[12px] py-[8px] text-[13px] font-medium text-newTableText bg-newBgColorInner hover:bg-boxHover border border-newTableBorder rounded-[8px] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-[6px] px-[12px] py-[8px] text-[13px] font-medium text-gray-700 dark:text-newTableText bg-gray-100 hover:bg-gray-200 dark:bg-newBgColorInner dark:hover:bg-boxHover border border-gray-300 dark:border-newTableBorder rounded-[8px] transition-colors disabled:opacity-50"
               title="Actualizar publicaciones y métricas"
             >
               <svg
@@ -287,10 +287,10 @@ const PostsTableContent: FC<{
       {/* Header of the Posts Section */}
       <div className="flex items-center justify-between flex-wrap gap-[10px] px-[2px]">
         <div className="flex items-center gap-[10px]">
-          <h4 className="text-[16px] font-semibold text-newTableText">
+          <h4 className="text-[16px] font-bold text-gray-900 dark:text-white">
             Historial de Publicaciones y Métricas
           </h4>
-          <span className="text-[12px] font-medium bg-newBgColorInner border border-newTableBorder px-[8px] py-[2px] rounded-full text-[#94a3b8]">
+          <span className="text-[12px] font-semibold bg-gray-100 dark:bg-newBgColorInner border border-gray-300 dark:border-newTableBorder px-[8px] py-[2px] rounded-full text-gray-700 dark:text-[#94a3b8]">
             {posts.length} {posts.length === 1 ? 'publicación' : 'publicaciones'}
           </span>
         </div>
@@ -300,24 +300,24 @@ const PostsTableContent: FC<{
             <button
               type="button"
               onClick={toggleExpandAll}
-              className="text-[12px] font-medium text-[#94a3b8] hover:text-white transition-colors underline decoration-dotted"
+              className="text-[12px] font-semibold text-gray-600 dark:text-[#94a3b8] hover:text-gray-900 dark:hover:text-white transition-colors underline decoration-dotted"
             >
               {allExpanded ? 'Colapsar todas' : 'Expandir todas'}
             </button>
           )}
-          <span className="text-[#94a3b8]">
-            Impresiones acumuladas: <strong className="text-white font-bold">{totalImpressions.toLocaleString()}</strong>
+          <span className="text-gray-600 dark:text-[#94a3b8]">
+            Impresiones acumuladas: <strong className="text-gray-900 dark:text-white font-extrabold">{totalImpressions.toLocaleString()}</strong>
           </span>
         </div>
       </div>
 
       {/* Posts List: Collapsed Rows by Default */}
       {isLoading ? (
-        <div className="bg-newTableHeader border border-newTableBorder rounded-[12px] p-[60px] flex items-center justify-center">
+        <div className="bg-white dark:bg-newTableHeader border border-gray-200 dark:border-newTableBorder rounded-[12px] p-[60px] flex items-center justify-center">
           <LoadingComponent />
         </div>
       ) : posts.length === 0 ? (
-        <div className="bg-newTableHeader border border-newTableBorder rounded-[12px] p-[40px] text-center flex flex-col items-center justify-center gap-[12px]">
+        <div className="bg-white dark:bg-newTableHeader border border-gray-200 dark:border-newTableBorder rounded-[12px] p-[40px] text-center flex flex-col items-center justify-center gap-[12px]">
           <div className="w-[48px] h-[48px] rounded-full bg-[#612bd3]/10 text-[#612bd3] flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -327,10 +327,10 @@ const PostsTableContent: FC<{
               <polyline points="10 9 9 9 8 9" />
             </svg>
           </div>
-          <p className="text-[15px] font-medium text-newTableText">
+          <p className="text-[15px] font-semibold text-gray-900 dark:text-white">
             No hay publicaciones cargadas para esta cuenta aún.
           </p>
-          <p className="text-[13px] text-[#94a3b8] max-w-[400px]">
+          <p className="text-[13px] text-gray-500 dark:text-[#94a3b8] max-w-[400px]">
             Las publicaciones creadas en Postiz o sincronizadas de tu canal aparecerán automáticamente en esta tabla.
           </p>
         </div>
@@ -360,18 +360,18 @@ const PostsTableContent: FC<{
             return (
               <div
                 key={post.id}
-                className="bg-newTableHeader border border-newTableBorder rounded-[10px] transition-all hover:border-[#612bd3]/40 overflow-hidden shadow-sm"
+                className="bg-white dark:bg-newTableHeader border border-gray-200 dark:border-newTableBorder rounded-[10px] transition-all hover:border-[#612bd3]/50 overflow-hidden shadow-sm"
               >
                 {/* Collapsed Bar / Clickable Row Header */}
                 <div
                   onClick={() => toggleExpand(post.id)}
-                  className="p-[12px] px-[14px] flex items-center justify-between gap-[12px] cursor-pointer select-none hover:bg-boxHover transition-colors"
+                  className="p-[12px] px-[14px] flex items-center justify-between gap-[12px] cursor-pointer select-none hover:bg-gray-50 dark:hover:bg-boxHover transition-colors"
                 >
                   <div className="flex items-center gap-[10px] min-w-0 flex-1">
                     {/* Expand/Collapse Chevron Indicator */}
                     <button
                       type="button"
-                      className="text-[#94a3b8] hover:text-white transition-transform p-[2px] shrink-0"
+                      className="text-gray-500 dark:text-[#94a3b8] hover:text-gray-900 dark:hover:text-white transition-transform p-[2px] shrink-0"
                       style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
                       title={isExpanded ? 'Colapsar' : 'Expandir'}
                     >
@@ -381,13 +381,16 @@ const PostsTableContent: FC<{
                     </button>
 
                     {/* Date Tag */}
-                    <span className="text-[11px] font-semibold text-[#cbd5e1] bg-[#1e293b] px-[7px] py-[2px] rounded-[5px] border border-[#334155] whitespace-nowrap shrink-0">
+                    <span className="text-[11px] font-semibold text-gray-700 dark:text-[#cbd5e1] bg-gray-100 dark:bg-[#1e293b] px-[7px] py-[2px] rounded-[5px] border border-gray-300 dark:border-[#334155] whitespace-nowrap shrink-0">
                       {shortDate}
                     </span>
 
-                    {/* 1-Line Summary Preview */}
+                    {/* 1-Line Summary: FIXED DUAL-THEME CONTRAST */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-medium text-white truncate leading-snug" title={summary}>
+                      <p
+                        className="text-[13.5px] font-bold text-gray-900 dark:text-white truncate leading-snug tracking-tight"
+                        title={summary}
+                      >
                         {summary}
                       </p>
                     </div>
@@ -397,7 +400,7 @@ const PostsTableContent: FC<{
                   <div className="flex items-center gap-[8px] shrink-0" onClick={(e) => e.stopPropagation()}>
                     {/* Vistas */}
                     <span
-                      className="inline-flex items-center gap-[4px] text-[11px] font-medium text-[#1d9bf0] bg-[#1d9bf0]/10 px-[7px] py-[2.5px] rounded-full border border-[#1d9bf0]/20"
+                      className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#0284c7] dark:text-[#1d9bf0] bg-[#0284c7]/10 dark:bg-[#1d9bf0]/10 px-[7px] py-[2.5px] rounded-full border border-[#0284c7]/20 dark:border-[#1d9bf0]/20"
                       title="Impresiones / Vistas"
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -409,7 +412,7 @@ const PostsTableContent: FC<{
 
                     {/* Likes */}
                     <span
-                      className="inline-flex items-center gap-[4px] text-[11px] font-medium text-[#f43f5e] bg-[#f43f5e]/10 px-[7px] py-[2.5px] rounded-full border border-[#f43f5e]/20"
+                      className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#e11d48] dark:text-[#f43f5e] bg-[#e11d48]/10 dark:bg-[#f43f5e]/10 px-[7px] py-[2.5px] rounded-full border border-[#e11d48]/20 dark:border-[#f43f5e]/20"
                       title="Me gusta / Likes"
                     >
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
@@ -424,7 +427,7 @@ const PostsTableContent: FC<{
                         href={post.releaseURL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-[4px] text-[11px] font-medium text-[#1d9bf0] hover:text-[#1a8cd8] bg-[#1d9bf0]/10 hover:bg-[#1d9bf0]/20 px-[8px] py-[2.5px] rounded-[5px] transition-colors border border-[#1d9bf0]/20"
+                        className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#0284c7] dark:text-[#1d9bf0] hover:text-[#0369a1] dark:hover:text-[#1a8cd8] bg-[#0284c7]/10 dark:bg-[#1d9bf0]/10 hover:bg-[#0284c7]/20 dark:hover:bg-[#1d9bf0]/20 px-[8px] py-[2.5px] rounded-[5px] transition-colors border border-[#0284c7]/20 dark:border-[#1d9bf0]/20"
                         title="Abrir tweet original en X"
                       >
                         <span>Ver en X</span>
@@ -440,16 +443,16 @@ const PostsTableContent: FC<{
 
                 {/* Expanded Details Body */}
                 {isExpanded && (
-                  <div className="p-[14px] pt-[8px] border-t border-newTableBorder/50 flex flex-col gap-[12px] bg-newBgColorInner/30">
-                    <div className="flex items-center justify-between text-[12px] text-[#94a3b8]">
+                  <div className="p-[14px] pt-[8px] border-t border-gray-200 dark:border-newTableBorder/50 flex flex-col gap-[12px] bg-gray-50/60 dark:bg-newBgColorInner/30">
+                    <div className="flex items-center justify-between text-[12px] text-gray-500 dark:text-[#94a3b8]">
                       <span>Publicado el {dateStr}</span>
-                      <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#10b981] bg-[#10b981]/15 px-[7px] py-[1.5px] rounded-full border border-[#10b981]/30">
+                      <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#059669] dark:text-[#10b981] bg-[#059669]/10 dark:bg-[#10b981]/15 px-[7px] py-[1.5px] rounded-full border border-[#059669]/30 dark:border-[#10b981]/30">
                         Publicado
                       </span>
                     </div>
 
-                    {/* Post Full Content */}
-                    <div className="text-[14px] leading-relaxed text-newTableText whitespace-pre-wrap select-text font-normal font-sans bg-newBgColorInner p-[12px] rounded-[8px] border border-newTableBorder/60">
+                    {/* Post Full Content: High Contrast in Both Themes */}
+                    <div className="text-[14px] leading-relaxed text-gray-900 dark:text-gray-100 whitespace-pre-wrap select-text font-normal font-sans bg-white dark:bg-newBgColorInner p-[14px] rounded-[8px] border border-gray-200 dark:border-newTableBorder/60 shadow-sm">
                       {cleanContent}
                     </div>
 
@@ -457,7 +460,7 @@ const PostsTableContent: FC<{
                     <div className="flex items-center gap-[8px] flex-wrap pt-[2px]">
                       {/* Impressions */}
                       <div
-                        className="inline-flex items-center gap-[5px] text-[11px] font-medium text-[#1d9bf0] bg-[#1d9bf0]/10 px-[9px] py-[3.5px] rounded-full border border-[#1d9bf0]/20"
+                        className="inline-flex items-center gap-[5px] text-[11px] font-semibold text-[#0284c7] dark:text-[#1d9bf0] bg-[#0284c7]/10 dark:bg-[#1d9bf0]/10 px-[9px] py-[3.5px] rounded-full border border-[#0284c7]/20 dark:border-[#1d9bf0]/20"
                         title="Impresiones / Vistas en X"
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -470,7 +473,7 @@ const PostsTableContent: FC<{
 
                       {/* Likes */}
                       <div
-                        className="inline-flex items-center gap-[5px] text-[11px] font-medium text-[#f43f5e] bg-[#f43f5e]/10 px-[9px] py-[3.5px] rounded-full border border-[#f43f5e]/20"
+                        className="inline-flex items-center gap-[5px] text-[11px] font-semibold text-[#e11d48] dark:text-[#f43f5e] bg-[#e11d48]/10 dark:bg-[#f43f5e]/10 px-[9px] py-[3.5px] rounded-full border border-[#e11d48]/20 dark:border-[#f43f5e]/20"
                         title="Me gusta / Likes"
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
@@ -482,7 +485,7 @@ const PostsTableContent: FC<{
 
                       {/* Retweets / Reposts */}
                       <div
-                        className="inline-flex items-center gap-[5px] text-[11px] font-medium text-[#10b981] bg-[#10b981]/10 px-[9px] py-[3.5px] rounded-full border border-[#10b981]/20"
+                        className="inline-flex items-center gap-[5px] text-[11px] font-semibold text-[#059669] dark:text-[#10b981] bg-[#059669]/10 dark:bg-[#10b981]/10 px-[9px] py-[3.5px] rounded-full border border-[#059669]/20 dark:border-[#10b981]/20"
                         title="Retweets / Reposts"
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -497,7 +500,7 @@ const PostsTableContent: FC<{
 
                       {/* Replies */}
                       <div
-                        className="inline-flex items-center gap-[5px] text-[11px] font-medium text-[#8b5cf6] bg-[#8b5cf6]/10 px-[9px] py-[3.5px] rounded-full border border-[#8b5cf6]/20"
+                        className="inline-flex items-center gap-[5px] text-[11px] font-semibold text-[#7c3aed] dark:text-[#8b5cf6] bg-[#7c3aed]/10 dark:bg-[#8b5cf6]/10 px-[9px] py-[3.5px] rounded-full border border-[#7c3aed]/20 dark:border-[#8b5cf6]/20"
                         title="Respuestas / Comentarios"
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -509,7 +512,7 @@ const PostsTableContent: FC<{
 
                       {/* Bookmarks */}
                       <div
-                        className="inline-flex items-center gap-[5px] text-[11px] font-medium text-[#f59e0b] bg-[#f59e0b]/10 px-[9px] py-[3.5px] rounded-full border border-[#f59e0b]/20"
+                        className="inline-flex items-center gap-[5px] text-[11px] font-semibold text-[#d97706] dark:text-[#f59e0b] bg-[#d97706]/10 dark:bg-[#f59e0b]/10 px-[9px] py-[3.5px] rounded-full border border-[#d97706]/20 dark:border-[#f59e0b]/20"
                         title="Guardados / Bookmarks"
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
