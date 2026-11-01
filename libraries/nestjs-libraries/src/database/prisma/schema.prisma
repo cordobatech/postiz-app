@@ -45,6 +45,9 @@ model Organization {
   webhooks            Webhooks[]
   oauthApp            OAuthApp[]
   oauthAuthorizations OAuthAuthorization[]
+  contacts            ConversationContact[]
+  conversationMessages ConversationMessage[]
+  keywordTriggers     KeywordTrigger[]
 
   @@index([apiKey])
   @@index([streakSince])
@@ -396,6 +399,9 @@ model Integration {
   orderItems            OrderItems[]
   plugs                 Plugs[]
   posts                 Post[]
+  guidelines            String?
+  metricsSnapshots      AccountMetricsSnapshot[]
+  keywordTriggers       KeywordTrigger[]
 
   @@unique([organizationId, internalId])
   @@index([rootInternalId])
@@ -493,6 +499,9 @@ model Post {
   submittedForOrder          Orders?                   @relation(fields: [submittedForOrderId], references: [id])
   submittedForOrganization   Organization?             @relation("submittedForOrg", fields: [submittedForOrganizationId], references: [id])
   tags                       TagsPosts[]
+  approvedAt                 DateTime?
+  approvedBy                 String?
+  metricsSnapshots           PostMetricsSnapshot[]
 
   @@index([group])
   @@index([batchId])
@@ -1775,6 +1784,7 @@ enum State {
   PUBLISHED
   ERROR
   DRAFT
+  PENDING_APPROVAL
 }
 
 enum SubscriptionTier {
@@ -1838,4 +1848,110 @@ model Announcement {
   description String
   color       AnnouncementColor @default(INFO)
   createdAt   DateTime          @default(now())
+}
+
+
+model AccountMetricsSnapshot {
+  id             String       @id @default(uuid())
+  integrationId  String
+  followers      Int          @default(0)
+  following      Int          @default(0)
+  postsCount     Int          @default(0)
+  impressions    Int          @default(0)
+  engagementRate Float?
+  rawStats       Json?
+  recordedAt     DateTime     @default(now())
+  integration    Integration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@index([integrationId])
+  @@index([recordedAt])
+}
+
+model PostMetricsSnapshot {
+  id          String   @id @default(uuid())
+  postId      String
+  impressions Int      @default(0)
+  likes       Int      @default(0)
+  shares      Int      @default(0)
+  comments    Int      @default(0)
+  clicks      Int      @default(0)
+  rawMetrics  Json?
+  recordedAt  DateTime @default(now())
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([recordedAt])
+}
+
+model ConversationContact {
+  id             String                @id @default(uuid())
+  organizationId String
+  name           String
+  handle         String?
+  phone          String?
+  email          String?
+  provider       String                @default("GENERIC")
+  stage          String                @default("LEAD")
+  dealValue      Float?
+  tags           String[]              @default([])
+  avatarUrl      String?
+  notes          String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages       ConversationMessage[]
+
+  @@index([organizationId])
+  @@index([phone])
+  @@index([handle])
+  @@index([stage])
+  @@index([createdAt])
+}
+
+model ConversationMessage {
+  id                 String              @id @default(uuid())
+  contactId          String
+  organizationId     String
+  integrationId      String?
+  direction          String              @default("INBOUND")
+  channel            String              @default("WHATSAPP")
+  content            String
+  rawPayload         Json?
+  isRead             Boolean             @default(false)
+  respondedByRuleId  String?
+  createdAt          DateTime            @default(now())
+  contact            ConversationContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  respondedByRule    KeywordTrigger?     @relation(fields: [respondedByRuleId], references: [id], onDelete: SetNull)
+
+  @@index([contactId])
+  @@index([organizationId])
+  @@index([channel])
+  @@index([direction])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model KeywordTrigger {
+  id             String                @id @default(uuid())
+  organizationId String
+  integrationId  String?
+  name           String
+  keywords       String[]              @default([])
+  matchType      String                @default("CONTAINS")
+  actionType     String                @default("AUTO_REPLY")
+  replyTemplate  String?
+  targetPhone    String?
+  assignTags     String[]              @default([])
+  isActive       Boolean               @default(true)
+  executionCount Int                   @default(0)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  integration    Integration?          @relation(fields: [integrationId], references: [id], onDelete: SetNull)
+  messages       ConversationMessage[]
+
+  @@index([organizationId])
+  @@index([integrationId])
+  @@index([isActive])
 }
