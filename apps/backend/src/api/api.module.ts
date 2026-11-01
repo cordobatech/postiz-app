@@ -1,3 +1,7 @@
+import { MetricsController } from './routes/metrics.controller';
+import { ConversationsController } from './routes/conversations.controller';
+import { TriggersController } from './routes/triggers.controller';
+
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from '@gitroom/backend/api/routes/auth.controller';
 import { AuthService } from '@gitroom/backend/services/auth/auth.service';
@@ -59,7 +63,7 @@ import { StripeController } from '@gitroom/backend/api/routes/stripe.controller'
 
 const authenticatedController = [
   UsersController,
-  AnalyticsController,
+  AnalyticsController, MetricsController, ConversationsController, TriggersController,
   IntegrationsController,
   SettingsController,
   PostsController,
