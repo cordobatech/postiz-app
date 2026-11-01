@@ -50,6 +50,12 @@ import { ErrorsRepository } from '@gitroom/nestjs-libraries/database/prisma/erro
 import { ErrorsService } from '@gitroom/nestjs-libraries/database/prisma/errors/errors.service';
 import { AdminStatsRepository } from '@gitroom/nestjs-libraries/database/prisma/admin-stats/admin-stats.repository';
 import { AdminStatsService } from '@gitroom/nestjs-libraries/database/prisma/admin-stats/admin-stats.service';
+import { MetricsRepository } from '@gitroom/nestjs-libraries/database/prisma/metrics/metrics.repository';
+import { MetricsService } from '@gitroom/nestjs-libraries/database/prisma/metrics/metrics.service';
+import { ConversationsRepository } from '@gitroom/nestjs-libraries/database/prisma/conversations/conversations.repository';
+import { ConversationsService } from '@gitroom/nestjs-libraries/database/prisma/conversations/conversations.service';
+import { TriggersRepository } from '@gitroom/nestjs-libraries/database/prisma/triggers/triggers.repository';
+import { TriggersService } from '@gitroom/nestjs-libraries/database/prisma/triggers/triggers.service';
 
 @Global()
 @Module({
@@ -109,9 +115,16 @@ import { AdminStatsService } from '@gitroom/nestjs-libraries/database/prisma/adm
     ErrorsService,
     AdminStatsRepository,
     AdminStatsService,
+    MetricsRepository,
+    MetricsService,
+    ConversationsRepository,
+    ConversationsService,
+    TriggersRepository,
+    TriggersService,
   ],
   get exports() {
     return this.providers;
   },
 })
 export class DatabaseModule {}
+
